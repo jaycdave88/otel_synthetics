@@ -1,0 +1,78 @@
+# Binaries
+bin/
+*.exe
+*.out
+*.app
+*.dll
+*.dylib
+*.so
+
+# Build artifacts
+*.a
+*.o
+*.obj
+*.gcda
+*.gcno
+*.gcov
+
+# Go cache and module files
+/go/bin/
+/go/pkg/
+go.sum
+go.work
+
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+
+# Ignore vendor directory if using Go modules
+/vendor/
+
+# Build output
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.old
+
+# Test coverage data
+*.test
+*.prof
+*.cov
+*.coverprofile
+*.coverage
+
+# Debugging
+debug/
+trace.out
+profile.out
+cpu.out
+memory.out
+heap.out
+
+# Secrets
+*.env
+.envrc
+.env.local
+.env.*.local
+*.key
+*.pem
+*.crt
+secrets.json
+config.yaml
+config.local.yaml
+
+# OpenTelemetry & Logs
+*.trace
+otel-collector-config.yaml
+otel-collector.log
+
+# Synthetic Monitoring Outputs
+*.har
+*.jsonl
