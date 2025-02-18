@@ -11,11 +11,11 @@ import (
 	"go.opentelemetry.io/collector/receiver"
 	"go.uber.org/zap"
 
-	internal "github.com/jaycdave88/otel-synthetics/internal/receiver"
+	internal "github.com/jaycdave88/otel-synthetics/pkg/receiver"
 )
 
 func TestReceiverInitialization(t *testing.T) {
-	factory := internal.Factory()
+	factory := internal.NewFactory()
 	assert.NotNil(t, factory, "Receiver factory should not return nil")
 
 	cfg := factory.CreateDefaultConfig()
@@ -24,20 +24,20 @@ func TestReceiverInitialization(t *testing.T) {
 
 func TestReceiverLifecycle(t *testing.T) {
 	ctx := context.Background()
-	factory := internal.Factory()
+	factory := internal.NewFactory()
 	cfg := factory.CreateDefaultConfig()
 
 	// Create receiver with mock consumer
 	sink := new(consumertest.LogsSink)
 	id := component.NewIDWithName(internal.Type, "test")
-	set := receiver.CreateSettings{
+	set := receiver.Settings{
 		TelemetrySettings: component.TelemetrySettings{
 			Logger: zap.NewNop(),
 		},
 		ID: id,
 	}
 
-	recv, err := factory.CreateLogsReceiver(ctx, set, cfg, sink)
+	recv, err := factory.CreateLogs(ctx, set, cfg, sink)
 	assert.NoError(t, err)
 	assert.NotNil(t, recv)
 
@@ -45,13 +45,12 @@ func TestReceiverLifecycle(t *testing.T) {
 	err = recv.Start(ctx, nil)
 	assert.NoError(t, err, "Receiver should start without error")
 
-	// Let it run for a short time to ensure synthetic tests are triggered
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 
 	// Test Shutdown
 	err = recv.Shutdown(ctx)
 	assert.NoError(t, err, "Receiver should shutdown without error")
 
-	// Verify that logs were processed
-	assert.GreaterOrEqual(t, sink.LogRecordCount(), uint64(0), "Receiver should process logs")
+	logCount := sink.LogRecordCount()
+	assert.True(t, logCount > 0, "Receiver should process logs, but got %d logs", logCount)
 }

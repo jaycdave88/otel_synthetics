@@ -6,64 +6,59 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
-	"go.opentelemetry.io/collector/service"
+	"go.opentelemetry.io/collector/otelcol"
 
 	"github.com/jaycdave88/otel-synthetics/internal/exporter"
 	"github.com/jaycdave88/otel-synthetics/internal/processor"
-	"github.com/jaycdave88/otel-synthetics/internal/receiver"
+	"github.com/jaycdave88/otel-synthetics/pkg/receiver"
 )
 
 func main() {
 	ctx := context.Background()
 
-	factories := []component.Factory{
-		receiver.Factory(),
-		processor.Factory(),
-		exporter.Factory(),
-	}
-
 	info := component.BuildInfo{
-		Command:     "otel-synthetics-collector",
-		Description: "OpenTelemetry Collector for synthetic monitoring",
+		Command:     "otel-synthetics",
+		Description: "Custom OpenTelemetry Collector for Synthetic Monitoring",
 		Version:     "1.0.0",
 	}
 
-	configProvider, err := service.NewConfigProvider(
-		service.ConfigProviderSettings{
-			ResolverSettings: confmap.ResolverSettings{
-				URIs:      []string{"file:deploy/otel-collector-config.yaml"},
-				Providers: map[string]confmap.Provider{},
-			},
-		})
-	if err != nil {
-		log.Fatalf("Failed to create config provider: %v", err)
+	configProviderSettings := otelcol.ConfigProviderSettings{
+		ResolverSettings: confmap.ResolverSettings{
+			URIs: []string{"file:deploy/otel-collector-config.yaml"},
+		},
 	}
 
-	settings := service.Settings{
-		BuildInfo:      info,
-		Factories:      factories,
-		ConfigProvider: configProvider,
+	settings := otelcol.CollectorSettings{
+		BuildInfo:              info,
+		Factories:              components, // Pass the function itself, not its result
+		ConfigProviderSettings: configProviderSettings,
 	}
 
-	svc, err := service.New(ctx, settings)
+	svc, err := otelcol.NewCollector(settings)
 	if err != nil {
 		log.Fatalf("Failed to create service: %v", err)
 	}
 
-	err = svc.Start(context.Background())
+	err = svc.Run(ctx)
 	if err != nil {
-		log.Fatalf("Failed to start service: %v", err)
-	}
-
-	defer func() {
-		err = svc.Shutdown(context.Background())
-		if err != nil {
-			log.Fatalf("Failed to shutdown service: %v", err)
-		}
-	}()
-
-	// Block until the service is shutdown
-	if err = svc.Run(ctx); err != nil {
 		log.Fatalf("Service error: %v", err)
 	}
+}
+
+func components() (otelcol.Factories, error) {
+	factories := otelcol.Factories{}
+
+	// Add custom receivers
+	receiverFactories := receiver.Factories()
+	factories.Receivers = receiverFactories
+
+	// Add custom exporters
+	exporterFactories := exporter.Factories()
+	factories.Exporters = exporterFactories
+
+	// Add custom processors
+	processorFactories := processor.Factories()
+	factories.Processors = processorFactories
+
+	return factories, nil
 }

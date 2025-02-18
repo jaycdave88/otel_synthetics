@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer/consumertest"
+	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/processor"
 	"go.uber.org/zap"
@@ -16,7 +17,7 @@ import (
 )
 
 func TestProcessorInitialization(t *testing.T) {
-	proc := internal.Factory()
+	proc := internal.NewFactory()
 	assert.NotNil(t, proc, "Processor factory should not return nil")
 
 	cfg := proc.CreateDefaultConfig()
@@ -25,20 +26,20 @@ func TestProcessorInitialization(t *testing.T) {
 
 func TestProcessorLifecycle(t *testing.T) {
 	ctx := context.Background()
-	proc := internal.Factory()
+	proc := internal.NewFactory()
 	cfg := proc.CreateDefaultConfig()
 
 	// Create processor with mock consumer
 	sink := new(consumertest.LogsSink)
 	id := component.NewIDWithName(internal.Type, "test")
-	set := processor.CreateSettings{
+	set := processor.Settings{
 		TelemetrySettings: component.TelemetrySettings{
 			Logger: zap.NewNop(),
 		},
 		ID: id,
 	}
 
-	p, err := proc.CreateLogsProcessor(ctx, set, cfg, sink)
+	p, err := proc.CreateLogs(ctx, set, cfg, sink)
 	assert.NoError(t, err)
 	assert.NotNil(t, p)
 
@@ -53,15 +54,15 @@ func TestProcessorLifecycle(t *testing.T) {
 	scopeLogs := resourceLogs.ScopeLogs().AppendEmpty()
 	logRecord := scopeLogs.LogRecords().AppendEmpty()
 
-	// Set timestamp
-	now := time.Now().UnixNano()
-	logRecord.SetTimestamp(plog.NewTimestampFromTime(time.Unix(0, now)))
+	timestamp := pcommon.NewTimestampFromTime(time.Now())
+	logRecord.SetObservedTimestamp(timestamp)
+	logRecord.SetTimestamp(timestamp)
 	logRecord.SetSeverityText("INFO")
-	logRecord.Body().SetStr("Test log message")
+	logRecord.Body().SetStr("Test processor log")
 
 	// Test log processing
 	err = p.ConsumeLogs(ctx, logs)
-	assert.NoError(t, err, "Log processing should not error")
+	assert.NoError(t, err, "Log processing should not fail")
 
 	// Test Shutdown
 	err = p.Shutdown(ctx)
