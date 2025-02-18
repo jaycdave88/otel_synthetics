@@ -35,7 +35,8 @@ func createDefaultConfig() component.Config {
 }
 
 type Config struct {
-	component.Config `mapstructure:",squash"`
+	component.Config   `mapstructure:",squash"`
+	CollectionInterval string `mapstructure:"collection_interval"`
 }
 
 func createLogsReceiver(

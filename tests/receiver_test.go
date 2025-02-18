@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/collector/receiver"
 	"go.uber.org/zap"
 
-	internal "github.com/jaycdave88/otel-synthetics/pkg/receiver"
+	internal "github.com/jaycdave88/otel-synthetics/pkg/syntheticsreceiver"
 )
 
 func TestReceiverInitialization(t *testing.T) {

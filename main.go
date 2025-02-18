@@ -10,7 +10,7 @@ import (
 
 	"github.com/jaycdave88/otel-synthetics/internal/exporter"
 	"github.com/jaycdave88/otel-synthetics/internal/processor"
-	"github.com/jaycdave88/otel-synthetics/pkg/receiver"
+	receiver "github.com/jaycdave88/otel-synthetics/pkg/syntheticsreceiver"
 )
 
 func main() {

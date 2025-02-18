@@ -12,7 +12,7 @@ processors:
 
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.120.0
-  - gomod: github.com/jaycdave88/otel-synthetics/pkg/receiver v0.0.0
+  - gomod: github.com/jaycdave88/otel-synthetics/pkg/syntheticsreceiver v0.0.0
     path: ./pkg/receiver
 
 

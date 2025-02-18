@@ -1,4 +1,4 @@
-module github.com/jaycdave88/otel-synthetics/pkg/receiver
+module github.com/jaycdave88/otel-synthetics/pkg/syntheticsreceiver
 
 go 1.24.0
 

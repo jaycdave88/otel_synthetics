@@ -3,7 +3,7 @@ module github.com/jaycdave88/otel-synthetics
 go 1.24.0
 
 require (
-	github.com/jaycdave88/otel-synthetics/pkg/receiver v0.0.0-00010101000000-000000000000
+	github.com/jaycdave88/otel-synthetics/pkg/syntheticsreceiver v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/collector/component v0.120.0
 	go.opentelemetry.io/collector/confmap v1.26.0
@@ -122,5 +122,5 @@ replace (
 	github.com/jaycdave88/otel-synthetics/config => ./config
 	github.com/jaycdave88/otel-synthetics/internal/exporter => ./internal/exporter
 	github.com/jaycdave88/otel-synthetics/internal/processor => ./internal/processor
-	github.com/jaycdave88/otel-synthetics/pkg/receiver => ./pkg/receiver
+	github.com/jaycdave88/otel-synthetics/pkg/syntheticsreceiver => ./pkg/receiver
 )
